@@ -18,8 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import collections
 import io
@@ -27,8 +26,7 @@ import itertools
 import sys
 
 import backtrader as bt
-from backtrader.utils.py3 import (map, with_metaclass, string_types,
-                                  integer_types)
+from backtrader.utils.py3 import map, with_metaclass, string_types, integer_types
 
 
 class WriterBase(with_metaclass(bt.MetaParams, object)):
@@ -36,7 +34,7 @@ class WriterBase(with_metaclass(bt.MetaParams, object)):
 
 
 class WriterFile(WriterBase):
-    '''The system wide writer class.
+    """The system wide writer class.
 
     It can be parametrized with:
 
@@ -84,20 +82,19 @@ class WriterFile(WriterBase):
         Number of decimal places to round floats down to. With ``None`` no
         rounding is performed
 
-    '''
+    """
+
     params = (
-        ('out', None),
-        ('close_out', False),
-
-        ('csv', False),
-        ('csvsep', ','),
-        ('csv_filternan', True),
-        ('csv_counter', True),
-
-        ('indent', 2),
-        ('separators', ['=', '-', '+', '*', '.', '~', '"', '^', '#']),
-        ('seplen', 79),
-        ('rounding', None),
+        ("out", None),
+        ("close_out", False),
+        ("csv", False),
+        ("csvsep", ","),
+        ("csv_filternan", True),
+        ("csv_counter", True),
+        ("indent", 2),
+        ("separators", ["=", "-", "+", "*", ".", "~", '"', "^", "#"]),
+        ("seplen", 79),
+        ("rounding", None),
     )
 
     def __init__(self):
@@ -107,12 +104,12 @@ class WriterFile(WriterBase):
 
     def _start_output(self):
         # open file if needed
-        if not hasattr(self, 'out') or not self.out:
+        if not hasattr(self, "out") or not self.out:
             if self.p.out is None:
                 self.out = sys.stdout
                 self.close_out = False
             elif isinstance(self.p.out, string_types):
-                self.out = open(self.p.out, 'w')
+                self.out = open(self.p.out, "w")
                 self.close_out = True
             else:
                 self.out = self.p.out
@@ -123,7 +120,7 @@ class WriterFile(WriterBase):
 
         if self.p.csv:
             self.writelineseparator()
-            self.writeiterable(self.headers, counter='Id')
+            self.writeiterable(self.headers, counter="Id")
 
     def stop(self):
         if self.close_out:
@@ -141,10 +138,10 @@ class WriterFile(WriterBase):
     def addvalues(self, values):
         if self.p.csv:
             if self.p.csv_filternan:
-                values = map(lambda x: x if x == x else '', values)
+                values = map(lambda x: x if x == x else "", values)
             self.values.extend(values)
 
-    def writeiterable(self, iterable, func=None, counter=''):
+    def writeiterable(self, iterable, func=None, counter=""):
         if self.p.csv_counter:
             iterable = itertools.chain([counter], iterable)
 
@@ -155,17 +152,17 @@ class WriterFile(WriterBase):
         self.writeline(line)
 
     def writeline(self, line):
-        self.out.write(line + '\n')
+        self.out.write(line + "\n")
 
     def writelines(self, lines):
         for l in lines:
-            self.out.write(l + '\n')
+            self.out.write(l + "\n")
 
     def writelineseparator(self, level=0):
         sepnum = level % len(self.p.separators)
         separator = self.p.separators[sepnum]
 
-        line = ' ' * (level * self.p.indent)
+        line = " " * (level * self.p.indent)
         line += separator * (self.p.seplen - (level * self.p.indent))
         self.writeline(line)
 
@@ -175,11 +172,11 @@ class WriterFile(WriterBase):
 
         indent0 = level * self.p.indent
         for key, val in dct.items():
-            kline = ' ' * indent0
+            kline = " " * indent0
             if recurse:
-                kline += '- '
+                kline += "- "
 
-            kline += str(key) + ':'
+            kline += str(key) + ":"
 
             try:
                 sclass = issubclass(val, bt.LineSeries)
@@ -187,18 +184,18 @@ class WriterFile(WriterBase):
                 sclass = False
 
             if sclass:
-                kline += ' ' + val.__name__
+                kline += " " + val.__name__
                 self.writeline(kline)
             elif isinstance(val, string_types):
-                kline += ' ' + val
+                kline += " " + val
                 self.writeline(kline)
             elif isinstance(val, integer_types):
-                kline += ' ' + str(val)
+                kline += " " + str(val)
                 self.writeline(kline)
             elif isinstance(val, float):
                 if self.p.rounding is not None:
                     val = round(val, self.p.rounding)
-                kline += ' ' + str(val)
+                kline += " " + str(val)
                 self.writeline(kline)
             elif isinstance(val, dict):
                 if recurse:
@@ -206,15 +203,15 @@ class WriterFile(WriterBase):
                 self.writeline(kline)
                 self.writedict(val, level=level + 1, recurse=True)
             elif isinstance(val, (list, tuple, collections.Iterable)):
-                line = ', '.join(map(str, val))
-                self.writeline(kline + ' ' + line)
+                line = ", ".join(map(str, val))
+                self.writeline(kline + " " + line)
             else:
-                kline += ' ' + str(val)
+                kline += " " + str(val)
                 self.writeline(kline)
 
 
 class WriterStringIO(WriterFile):
-    params = (('out', io.StringIO),)
+    params = (("out", io.StringIO),)
 
     def __init__(self):
         super(WriterStringIO, self).__init__()
